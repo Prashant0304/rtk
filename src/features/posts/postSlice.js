@@ -1,5 +1,5 @@
 import { createSlice,createAsyncThunk } from "@reduxjs/toolkit";
-
+import { fetchPosts as fetchPostsApi } from "../../services/api";
 const initialState={
     postList:[],
     loading:false,
@@ -7,16 +7,17 @@ const initialState={
 };
 
 export const fetchPosts=createAsyncThunk("posts/fetchPosts",
-    async (thunkAPI,{rejectWithValue}) => {
-        const API_URL="https://jsonplaceholder.typicode.com";
-        try{
-            const res=await fetch(`${API_URL}/posts`);
-            const data=await res.json();
-            return data;
-        }
-        catch(error){
-            return rejectWithValue("Something went wrong");
-        }
+    async () => {
+        const res=await fetchPostsApi();
+        return res;
+        // try{
+        //     const res=await fetch(`${API_URL}/posts`);
+        //     const data=await res.json();
+        //     return data;
+        // }
+        // catch(error){
+        //     return rejectWithValue("Something went wrong");
+        // }
 });
 
 const postSlice=createSlice({
@@ -29,9 +30,9 @@ const postSlice=createSlice({
         }).addCase(fetchPosts.fulfilled,(state,{payload})=>{
             state.loading=false;
             state.postList=payload;
-        }).addCase(fetchPosts.rejected,(state,{payload})=>{
+        }).addCase(fetchPosts.rejected,(state,action)=>{
             state.loading=false;
-            state.error=payload;
+            state.error=action.error;
         });
     },
 });
